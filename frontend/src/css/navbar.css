@@ -1,0 +1,49 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #001529;
+  color: white;
+  height: 64px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-logo:hover {
+  color: #1890ff;
+}
+
+.navbar-menu {
+  flex: 1;
+  margin: 0 20px;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-user {
+  color: white;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.navbar-user:hover {
+  color: #1890ff;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #1890ff !important;
+}

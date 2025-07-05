@@ -1,11 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { combineReducers } from 'redux';
+import authReducer from './slices/authSlice';
 
-const rootReducer = combineReducers({});
-
-const store = configureStore({
-  reducer: rootReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+export default configureStore({
+  reducer: {
+    auth: authReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['files/uploadFile'],
+        ignoredPaths: ['files.uploadProgress']
+      }
+    })
 });
-
-export default store;

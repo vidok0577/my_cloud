@@ -6,6 +6,7 @@ import {
   ShareAltOutlined
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import '../css/home.css';
 
 const { Title, Paragraph } = Typography;
 

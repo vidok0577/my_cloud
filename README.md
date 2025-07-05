@@ -23,12 +23,14 @@
 - Django 5.2
 - Django REST Framework
 - PostgreSQL
+- JWT-аутентификация
 
 **Фронтенд:**
 - React 19
 - Redux Toolkit
 - Axios
 - React Router
+- Ant Design
 
 ## 🚀 Установка и запуск
 
