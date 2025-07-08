@@ -9,7 +9,7 @@ import {
   LockOutlined,
   SolutionOutlined
 } from '@ant-design/icons';
-import AuthLayout from '../layouts/AuthLayout';
+import '../css/auth.css';
 
 const { Title, Text } = Typography;
 
@@ -59,9 +59,8 @@ const RegisterPage = () => {
   };
 
   return (
-    <AuthLayout>
-      <Card className="register-card">
-        <Title level={3} className="register-title">Создать аккаунт</Title>
+      <Card className="auth-card">
+        <Title level={3} className="auth-title">Создать аккаунт</Title>
         <Text type="secondary">Заполните форму для регистрации в MyCloud</Text>
         
         {error && (
@@ -188,12 +187,11 @@ const RegisterPage = () => {
             </Button>
           </Form.Item>
 
-          <div className="register-links">
+          <div className="auth-links">
             <Text>Уже есть аккаунт? <Link to="/login">Войти</Link></Text>
           </div>
         </Form>
       </Card>
-    </AuthLayout>
   );
 };
 

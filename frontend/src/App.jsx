@@ -6,6 +6,12 @@ import Navbar from './components/Navbar';
 import HomePage from './components/Home';
 import LoginPage from './components/Login';
 import RegisterPage from './components/Register';
+import LoadingSpinner from './components/LoadingSpinner';
+import ShareDownloadPage from './components/Share';
+import FilesManager from './components/FilesManager';
+import Profile from './components/Profile';
+import AdminPage from './components/Admin';
+import UserFilesPage from './components/UserFiles';
 import './App.css';
 
 
@@ -44,7 +50,7 @@ function App() {
         />
         <Route 
           path="/files" 
-          element={user ? <FilesPage /> : <Navigate to="/login" replace />} 
+          element={user ? <FilesManager /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/profile" 

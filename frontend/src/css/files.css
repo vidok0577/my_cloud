@@ -1,0 +1,49 @@
+.files-page {
+  padding: 24px;
+}
+
+.files-header {
+  margin-bottom: 24px;
+}
+
+.files-actions {
+  margin-bottom: 16px;
+}
+
+.modal-custom-title {
+  white-space: normal;
+  word-break: break-word;
+  padding-right: 24px;
+}
+
+.modal-custom-title .filename {
+  font-weight: normal;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.ant-upload-dragger {
+  padding: 16px !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-table-row {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .files-actions {
+    margin-bottom: 24px;
+  }
+  
+  .files-actions .ant-space {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .files-actions .ant-input {
+    width: 100% !important;
+    margin-top: 12px;
+  }
+}

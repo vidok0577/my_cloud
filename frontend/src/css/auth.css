@@ -1,22 +1,37 @@
-.auth-layout {
-  min-height: 90vh;
-  background: #f0f2f5;
-}
-
-.auth-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px;
-}
-
-.auth-container {
-  max-width: 1200px;
+.auth-card {
+  max-width: 450px;
+  margin: 10px auto;
   width: 100%;
-  padding: 5px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.auth-footer {
+.auth-title {
   text-align: center;
-  background: #f0f2f5;
+  margin-top: 0px;
+}
+
+.auth-links {
+  text-align: center;
+  margin: 16px 0;
+}
+
+.auth-links a {
+  color: #1890ff;
+}
+
+.ant-divider-inner-text {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.ant-form-item-label label {
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    border: none;
+    box-shadow: none;
+  }
 }

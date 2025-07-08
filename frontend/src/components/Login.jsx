@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../store/slices/authSlice';
 import { Form, Input, Button, Card, Typography, Alert } from 'antd';
 import { UserOutlined, LockOutlined, } from '@ant-design/icons';
-import AuthLayout from '../layouts/AuthLayout';
+import '../css/auth.css';
 
 const { Title, Text } = Typography;
 
@@ -26,9 +26,8 @@ const LoginPage = () => {
   };
 
   return (
-    <AuthLayout>
-      <Card className="login-card">
-        <Title level={3} className="login-title">Вход в MyCloud</Title>
+      <Card className="auth-card">
+        <Title level={3} className="auth-title">Вход в MyCloud</Title>
         <Text type="secondary">Введите свои учетные данные для доступа к хранилищу</Text>
         
         {error && (
@@ -92,12 +91,11 @@ const LoginPage = () => {
             </Button>
           </Form.Item>
 
-          <div className="login-links">
+          <div className="auth-links">
             <Text>Нет аккаунта? <Link to="/register">Создать аккаунт</Link></Text>
           </div>
         </Form>
       </Card>
-    </AuthLayout>
   );
 };
 

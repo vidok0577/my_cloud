@@ -25,10 +25,10 @@ const Navbar = () => {
     dispatch(logout())
       .unwrap()
       .then(() => {
-        navigate('/login');
+        navigate('/');
       })
       .catch(() => {
-        navigate('/login');
+        navigate('/');
       });
   };
   const userMenuItems = [

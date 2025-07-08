@@ -24,11 +24,6 @@
   color: #1890ff;
 }
 
-.navbar-menu {
-  flex: 1;
-  margin: 0 20px;
-}
-
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -42,8 +37,4 @@
 
 .navbar-user:hover {
   color: #1890ff;
-}
-
-.ant-menu-dark .ant-menu-item-selected {
-  background-color: #1890ff !important;
 }
