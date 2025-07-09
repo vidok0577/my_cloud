@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Card, Typography, Divider, Space, Tag } from 'antd';
 import { 
   UserOutlined,
@@ -8,20 +9,22 @@ import {
   SafetyOutlined,
   FontSizeOutlined
 } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { formatDate, formatStorage } from '../api/utils';
+import { fetchCurrentUser } from '../store/slices/authSlice';
 import '../css/profile.css';
 
 const { Title, Text } = Typography;
 
 const Profile = () => {
   const { user } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+  const location = useLocation();
 
-  // const formatStorage = (bytes) => {
-  //   if (bytes < 1024) return `${bytes} B`;
-  //   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  //   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  // };
+  useEffect(() => {
+    dispatch(fetchCurrentUser());
+  }, [dispatch, location.key]);
 
   return (
     <Card 
