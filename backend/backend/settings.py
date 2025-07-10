@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY'] #'django-insecure-x%cle&@&j(s4&(^-%q4zaj&9xz+*k%#xuxssb%7a$ojpcf71@d'
+SECRET_KEY = os.environ['SECRET_KEY']
+# SECRET_KEY = 'django-insecure-x%cle&@&j(s4&(^-%q4zaj&9xz+*k%#xuxssb%7a$ojpcf71@d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['DEBUG']
@@ -154,7 +155,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Настройки Simple JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
