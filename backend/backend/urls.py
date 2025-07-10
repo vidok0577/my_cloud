@@ -6,10 +6,9 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
-    path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('storage.urls')),
 ]
 

@@ -8,7 +8,7 @@ import '../css/share.css';
 
 const { Text } = Typography;
 
-const ShareButton = ({ fileId, apiUrl = '/api/files' }) => {
+const ShareButton = ({ fileId, apiUrl = '/files' }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [lastDownload, setLastDownload] = useState('');

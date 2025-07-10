@@ -3,7 +3,6 @@ FROM node:22-slim AS build
 WORKDIR /app
 COPY package*.json yarn.lock ./
 RUN yarn 
-# install --frozen-lockfile
 COPY . .
 RUN yarn build
 

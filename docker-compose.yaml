@@ -1,3 +1,8 @@
+networks:
+  internal_network:
+    # internal: true
+    # driver: bridge
+
 services:
   db:
     image: postgres:14
@@ -8,8 +13,8 @@ services:
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - internal_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mycloud"]
       interval: 5s
@@ -31,8 +36,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
-    ports:
-      - "8000:8000"
+    networks:
+      - internal_network
     depends_on:
       db:
         condition: service_healthy
@@ -42,6 +47,8 @@ services:
       context: ./frontend
     ports:
       - "80:80"
+    networks:
+      - internal_network
     depends_on:
       - backend
 

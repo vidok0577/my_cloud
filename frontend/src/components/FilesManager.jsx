@@ -195,7 +195,7 @@ const FilesManager = () => {
           />
           <ShareButton 
             fileId={record.id} 
-            apiUrl="/api/files"
+            apiUrl="/files"
           />
           <Popconfirm
             title="Вы уверены, что хотите удалить этот файл?"

@@ -9,6 +9,6 @@ router.register(r'files', FileViewSet, basename='file')
 urlpatterns = [
     path('api/', include(router.urls)),
     path('api/users/<int:pk>/files/', UserViewSet.as_view({'get': 'user_files'}), name='user-files'),
-    path('auth/register/', RegisterView.as_view(), name='register'),
-    path('auth/me/', CurrentUserView.as_view(), name='current_user'),
+    path('api/auth/register/', RegisterView.as_view(), name='register'),
+    path('api/auth/me/', CurrentUserView.as_view(), name='current_user'),
 ]

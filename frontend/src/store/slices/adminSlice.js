@@ -6,7 +6,7 @@ export const fetchUsers = createAsyncThunk(
   'admin/fetchUsers',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get('/api/users/');
+      const response = await apiClient.get('/users/');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -17,7 +17,7 @@ export const fetchUsers = createAsyncThunk(
 export const deleteUser = createAsyncThunk(
   'admin/deleteUser',
   async (userId) => {
-    await apiClient.delete(`/api/users/${userId}/`);
+    await apiClient.delete(`/users/${userId}/`);
     return userId;
   }
 );
@@ -26,7 +26,7 @@ export const updateUser = createAsyncThunk(
   'admin/updateUser',
   async ({ userId, isAdmin }, { rejectWithValue }) => {
     try {
-      const response = await apiClient.patch(`/api/users/${userId}/set_admin/`, {
+      const response = await apiClient.patch(`/users/${userId}/set_admin/`, {
         is_staff: isAdmin
       });
       return response.data;

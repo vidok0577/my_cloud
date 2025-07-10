@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from socket import gethostbyname, gethostname
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +29,16 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['DEBUG']
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    gethostname(),                  # Имя контейнера
+    gethostbyname(gethostname()),   # IP контейнера
+    'backend',                      # Имя сервиса
+    '192.168.0.105',
+    '176.126.24.118',
+    'igorcoder.ru',
+    'localhost',
+    '127.0.0.1',
+]
 
 
 # Application definition
@@ -155,7 +166,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Настройки Simple JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,

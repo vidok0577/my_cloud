@@ -66,11 +66,11 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_download_url(self, obj):
         request = self.context.get('request')
-        return request.build_absolute_uri(f'/api/files/{obj.id}/download/')
+        return request.build_absolute_uri(f'/files/{obj.id}/download/')
 
     def get_share_url(self, obj):
         request = self.context.get('request')
-        return request.build_absolute_uri(f'/api/share/{obj.share_link}/')
+        return request.build_absolute_uri(f'/share/{obj.share_link}/')
 
 
 class FileUploadSerializer(serializers.ModelSerializer):

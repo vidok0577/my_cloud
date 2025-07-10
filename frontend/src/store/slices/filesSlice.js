@@ -11,7 +11,7 @@ export const fetchFiles = createAsyncThunk(
       params.user_id = userId;
     }
 
-    const response = await apiClient.get('/api/files/', { params });
+    const response = await apiClient.get('/files/', { params });
     return response.data;
   }
 );
@@ -21,7 +21,7 @@ export const updateFileComment = createAsyncThunk(
   async ({ fileId, comment }, { rejectWithValue }) => {
     try {
       const response = await apiClient.patch(
-        `/api/files/${fileId}/update_comment/`,
+        `/files/${fileId}/update_comment/`,
         { comment },
         {
           headers: {
@@ -44,7 +44,7 @@ export const uploadFile = createAsyncThunk(
             formData.append('file', file);
             formData.append('comment', comment);
 
-            const response = await apiClient.post('/api/files/', formData, {
+            const response = await apiClient.post('/files/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -61,10 +61,10 @@ export const deleteFile = createAsyncThunk(
   async (fileId, isAdmin) => {
     if (isAdmin) {
       // Для администратора используем специальный эндпоинт
-      await apiClient.delete(`/api/files/${fileId}/admin_delete/`);
+      await apiClient.delete(`/files/${fileId}/admin_delete/`);
     } else {
       // Для обычного пользователя стандартный эндпоинт
-      await apiClient.delete(`/api/files/${fileId}/`);
+      await apiClient.delete(`/files/${fileId}/`);
     }
     
     return fileId;
@@ -74,7 +74,7 @@ export const deleteFile = createAsyncThunk(
 export const downloadFile = createAsyncThunk(
   'files/downloadFile',
   async (fileId, { getState }) => {
-    const response = await apiClient.get(`/api/files/${fileId}/download/`, {
+    const response = await apiClient.get(`/files/${fileId}/download/`, {
       responseType: 'blob'
     });
     
@@ -96,7 +96,7 @@ export const fetchAdminFiles = createAsyncThunk(
   'files/fetchAdminFiles',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get(`/api/users/${userId}/files/`);
+      const response = await apiClient.get(`/users/${userId}/files/`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

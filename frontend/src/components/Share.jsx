@@ -16,7 +16,7 @@ const ShareDownloadPage = () => {
   useEffect(() => {
     const fetchFileInfo = async () => {
       try {
-        const response = await apiClient.get(`/api/files/share/${shareLink}/info/`);
+        const response = await apiClient.get(`/files/share/${shareLink}/info/`);
         setFileInfo(response.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Не удалось загрузить информацию о файле');
@@ -30,7 +30,7 @@ const ShareDownloadPage = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await downloadClient.get(`/api/files/share/${shareLink}/`);
+      const response = await downloadClient.get(`/files/share/${shareLink}/`);
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
