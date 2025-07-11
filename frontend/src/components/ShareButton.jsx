@@ -51,9 +51,31 @@ const ShareButton = ({ fileId, apiUrl = '/files' }) => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareLink);
-    message.success('Ссылка скопирована в буфер обмена!');
+  const copyToClipboard = async () => {
+    try {
+      // Проверка поддержки API
+      if (!navigator.clipboard) {
+        throw new Error("Clipboard API not available");
+      }
+      
+      await navigator.clipboard.writeText(shareLink);
+      console.log("Ссылка скопирована");
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Fallback для небезопасных соединений или старых браузеров
+      const textarea = document.createElement('textarea');
+      textarea.value = shareLink;
+      document.body.appendChild(textarea);
+      textarea.select();
+      console.log('Используется не безопасное соединение или старый браузер');
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (!successful) throw new Error('Fallback copy failed');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
   };
 
   const handleModalClose = () => {

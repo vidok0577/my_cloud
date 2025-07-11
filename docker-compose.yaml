@@ -1,7 +1,5 @@
 networks:
   internal_network:
-    # internal: true
-    # driver: bridge
 
 services:
   db:

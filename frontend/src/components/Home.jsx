@@ -98,7 +98,7 @@ const HomePage = () => {
             showIcon
             action={
               <Button type="primary">
-                <Link to="/">Зарегистрироваться</Link>
+                <Link to="/register">Зарегистрироваться</Link>
               </Button>
             }
           />
