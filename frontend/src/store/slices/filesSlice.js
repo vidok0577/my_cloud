@@ -38,7 +38,7 @@ export const updateFileComment = createAsyncThunk(
 
 export const uploadFile = createAsyncThunk(
     'files/uploadFile',
-    async ({ file, comment = '' }, { rejectWithValue }) => {
+    async ({ file, comment = '', onProgress }, { rejectWithValue }) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -48,6 +48,13 @@ export const uploadFile = createAsyncThunk(
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                onUploadProgress: (progressEvent) => {
+                  if (onProgress) {
+                    const progress = Math.round(
+                      (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    onProgress(progress);
+                  }},
             });
             return response.data;
         } catch (error) {
@@ -73,22 +80,36 @@ export const deleteFile = createAsyncThunk(
 
 export const downloadFile = createAsyncThunk(
   'files/downloadFile',
-  async (fileId, { getState }) => {
-    const response = await apiClient.get(`/files/${fileId}/download/`, {
-      responseType: 'blob'
-    });
-    
-    const { files } = getState().files;
-    const file = files.find(f => f.id === fileId);
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', file.original_name);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    
-    return fileId;
+  async ({ fileId, onProgress }, { getState, rejectWithValue }) => {
+    try {
+      const { files } = getState().files;
+      const file = files.find(f => f.id === fileId);
+      if (!file) throw new Error('File not found');
+      
+      const response = await apiClient.get(`/files/${fileId}/download/`, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          if (onProgress) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || file.size)
+            );
+            onProgress(percentCompleted);
+          }
+        }
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', file.original_name);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      return fileId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 

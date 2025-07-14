@@ -11,7 +11,8 @@ import {
   Popconfirm,
   Card,
   Modal,
-  Form
+  Form,
+  Progress
 } from 'antd';
 import { 
   UploadOutlined, 
@@ -28,6 +29,7 @@ import '../css/files.css';
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
 const { TextArea } = Input;
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB в байтах
 
 const FilesManager = () => {
   const dispatch = useDispatch();
@@ -39,7 +41,12 @@ const FilesManager = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingFile, setEditingFile] = useState(null);
   const [editComment, setEditComment] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const textareaRef = useRef(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingFile, setDownloadingFile] = useState(null);
 
   useEffect(() => {
     dispatch(fetchFiles());
@@ -51,19 +58,46 @@ const FilesManager = () => {
       return;
     }
 
+    // Проверка размера файла
+    if (currentFile.size > MAX_FILE_SIZE) {
+      message.error(
+        `Файл слишком большой. Максимальный размер: ${formatStorage(MAX_FILE_SIZE)}. 
+        Ваш файл: ${formatStorage(currentFile.size)}`
+      );
+      return;
+    }
+
     try {
-      dispatch(uploadFile({ 
+      setUploading(true);
+      setUploadProgress(0);
+      
+      await dispatch(uploadFile({ 
         file: currentFile, 
-        comment 
+        comment,
+        onProgress: (progress) => setUploadProgress(progress)
       })).unwrap();
       
-      message.success(`${currentFile.name} успешно загружен`);
+      message.success(`${currentFile.name} успешно загружен (${formatStorage(currentFile.size)})`);
       setUploadModalVisible(false);
       setComment('');
       setCurrentFile(null);
+      setUploadProgress(0);
       dispatch(fetchFiles());
     } catch (error) {
-        message.error(`Ошибка: ${error.message}`);
+      let errorMessage = 'Произошла ошибка при загрузке';
+      
+      if (error.message.includes('413')) {
+        errorMessage = 'Сервер отклонил файл как слишком большой';
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Проблемы с соединением. Проверьте интернет';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      message.error(errorMessage);
+      setUploadProgress(0);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -86,14 +120,36 @@ const FilesManager = () => {
     }
   };
 
-  const handleDownload = async (fileId) => {
-    try {
-      await dispatch(downloadFile(fileId)).unwrap();
-      message.success('Начато скачивание файла');
-    } catch (error) {
-      message.error('Ошибка при скачивании файла', error);
-    }
-  };
+const handleDownload = async (fileId) => {
+  try {
+    const file = files.find(f => f.id === fileId);
+    if (!file) return;
+    
+    setDownloadingFile(file);
+    setIsDownloading(true);
+    setDownloadProgress(0);
+    
+    await dispatch(downloadFile({
+      fileId,
+      onProgress: (progress) => {
+        setDownloadProgress(progress);
+      }
+    })).unwrap();
+    
+    // Задержка перед закрытием модалки
+    setTimeout(() => {
+      setIsDownloading(false);
+      setDownloadingFile(null);
+    }, 1000);
+    
+    message.success('Файл успешно скачан');
+  // eslint-disable-next-line no-unused-vars
+  } catch (error) {
+    message.error('Ошибка при скачивании файла');
+    setIsDownloading(false);
+    setDownloadingFile(null);
+  }
+};
 
   const handleEditComment = async () => {
     if (!editingFile) return;
@@ -250,7 +306,7 @@ const FilesManager = () => {
       pagination={{ pageSize: 10 }}
       locale={{ emptyText: 'Нет загруженных файлов' }}
       style={{ width: '100%' }}
-    />
+      />
 
       {/* Модальное окно загрузки файла */}
       <Modal
@@ -261,6 +317,7 @@ const FilesManager = () => {
           setUploadModalVisible(false);
           setCurrentFile(null);
           setComment('');
+          setUploadProgress(0);
         }}
         okText="Загрузить"
         cancelText="Отмена"
@@ -275,10 +332,28 @@ const FilesManager = () => {
               </p>
               <p className="ant-upload-text">Кликните или перетащите файл для загрузки</p>
               <p className="ant-upload-hint">
-                Поддерживаются файлы
+                Поддерживаются файлы не более 50Мб
               </p>
             </Dragger>
           </Form.Item>
+          
+          {/* Добавляем индикатор прогресса */}
+          {uploading && (
+            <Form.Item>
+              <Progress
+                percent={uploadProgress}
+                status={uploadProgress === 100 ? 'success' : 'active'}
+                strokeColor={{
+                  '0%': '#108ee9',
+                  '100%': '#87d068',
+                }}
+              />
+              <div style={{ textAlign: 'center', marginTop: 8 }}>
+                {uploadProgress === 100 ? 'Файл загружен!' : 'Идет загрузка...'}
+              </div>
+            </Form.Item>
+          )}
+          
           <Form.Item label="Комментарий">
             <TextArea 
               rows={4} 
@@ -291,6 +366,28 @@ const FilesManager = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+          {/*Модильное окно загрузки */}
+          <Modal
+            title={`Скачивание: ${downloadingFile?.original_name || ''}`}
+            open={isDownloading}
+            footer={null}
+            closable={false}
+            maskClosable={false}
+            width={300}
+            centered
+          >
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <Progress
+                percent={downloadProgress}
+                status={downloadProgress === 100 ? 'success' : 'active'}
+                strokeColor={{
+                  '0%': '#108ee9',
+                  '100%': '#87d068',
+                }}
+              />
+            </div>
+          </Modal>
 
       {/* Модальное окно редактирования комментария */}
       <Modal

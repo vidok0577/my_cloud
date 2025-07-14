@@ -1,5 +1,6 @@
 import os
 import uuid
+import logging
 from rest_framework import viewsets, permissions, status
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -15,6 +16,8 @@ from rest_framework.views import APIView
 from .models import File
 from .serializers import UserSerializer, RegisterSerializer, FileSerializer
 
+
+logger = logging.getLogger(__name__)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -32,6 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         user.is_staff = not user.is_staff
         user.save()
+        logger.info(f'У пользователя {user.username} установлены админ права:{user.is_staff}')
         return Response(self.get_serializer(user).data)
 
     @action(detail=True, methods=['get'], url_path='files')
@@ -49,6 +53,7 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info(f'Создан пользователь {serializer.user}')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,6 +115,8 @@ class FileViewSet(viewsets.ModelViewSet):
                 original_name = f"{base_name}_{counter}{ext}"
                 counter += 1
 
+            logger.info(f'Пользователь {request.user}, закачал файл {original_name}')
+
             file_instance = File(
                 owner=request.user,
                 original_name=original_name,
@@ -136,23 +143,52 @@ class FileViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def download(self, request, pk=None):
-        file_obj = File.objects.get(pk=pk) #self.get_object()
+        try:
+          file_obj = File.objects.get(pk=pk)
 
-        # Разрешаем скачивание либо владельцу, либо администратору
-        if not request.user.is_staff and file_obj.owner != request.user:
+          # Проверяем существование файла в хранилище
+          if not file_obj.file:
+              logger.error(f"Файл ID:{pk} существует в БД, но отсутствует в хранилище")
+              return Response(
+                  {"error": "Файл недоступен для скачивания"},
+                  status=status.HTTP_410_GONE
+              )
+
+          # Разрешаем скачивание либо владельцу, либо администратору
+          if not request.user.is_staff and file_obj.owner != request.user:
+              logger.warning(
+                  f"Попытка несанкционированного доступа к файлу ID:{pk} пользователем {request.user}"
+              )
+              return Response(
+                  {"detail": "У вас нет прав для скачивания этого файла"},
+                  status=status.HTTP_403_FORBIDDEN
+              )
+
+          response = FileResponse(file_obj.file)
+          response['Content-Disposition'] = f'attachment; filename="{file_obj.original_name}"'
+          response['Content-Type'] = 'application/octet-stream'
+          logger.info(f'Скачивание файла {file_obj.original_name}, владельцем или админом')
+
+          file_obj.last_download = timezone.now()
+          file_obj.save()
+
+          return response
+        
+        except File.DoesNotExist:
+        # Логируем попытку доступа к несуществующему файлу
+          logger.info(f"Попытка доступа к несуществующему файлу ID:{pk}")
+          return Response(
+              {"error": "Файл не найден"},
+              status=status.HTTP_404_NOT_FOUND
+          )
+        
+        except Exception as e:
+            # Логируем непредвиденные ошибки
+            logger.exception(f"Ошибка при скачивании файла ID:{pk}")
             return Response(
-                {"detail": "У вас нет прав для скачивания этого файла"},
-                status=status.HTTP_403_FORBIDDEN
+                {"error": "Внутренняя ошибка сервера"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        response = FileResponse(file_obj.file)
-        response['Content-Disposition'] = f'attachment; filename="{file_obj.original_name}"'
-        response['Content-Type'] = 'application/octet-stream'
-
-        file_obj.last_download = timezone.now()
-        file_obj.save()
-
-        return response
 
     @action(detail=True, methods=['patch'], url_path='update_comment')
     def update_comment(self, request, pk=None):
@@ -191,6 +227,7 @@ class FileViewSet(viewsets.ModelViewSet):
             response = FileResponse(file_obj.file)
             response['Content-Disposition'] = f'attachment; filename="{file_obj.original_name}"'
             response['Content-Type'] = 'application/octet-stream'
+            logger.info(f'Скачивание файла {file_obj.original_name}, по шаред-ссылке')
 
             file_obj.last_download = timezone.now()
             file_obj.save()
@@ -212,15 +249,21 @@ class FileViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['delete'], permission_classes=[IsAdminUser])
     def admin_delete(self, request, pk=None):
-        print(f"Admin delete attempt by {request.user} for file {pk}")
+        logger.info(f'Админ {request.user} пытается удалить файл ID:{pk}')
         try:
             file = File.objects.get(pk=pk)
-            print(f"File found: {file}")
+            logger.info(f'Файл ID: {file} успешно удален')
             file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except File.DoesNotExist:
-            print("File not found")
+            logger.error(f'Файл ID:{pk} не найден')
             return Response(
                 {"error": "Файл не найден"},
                 status=status.HTTP_404_NOT_FOUND
             )
+        except Exception as e:
+          logger.exception(f'Ошибка при удалении файла ID:{pk}')
+          return Response(
+              {"error": "Внутренняя ошибка сервера"},
+              status=status.HTTP_500_INTERNAL_SERVER_ERROR
+          )
