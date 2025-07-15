@@ -51,11 +51,41 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            logger.info(f'Создан пользователь {serializer.user}')
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if serializer.is_valid():
+                user = serializer.save()
+                logger.info(f'Успешная регистрация пользователя {user.username}')
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            logger.warning(f'Ошибка валидации при регистрации: {serializer.errors}')
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except IntegrityError as e:
+            if 'auth_user_username_key' in str(e):
+                logger.warning(f'Попытка регистрации существующего username: {request.data.get("username")}')
+                return Response(
+                    {"username": "Пользователь с таким именем уже существует"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif 'auth_user_email_key' in str(e):
+                logger.warning(f'Попытка регистрации существующего email: {request.data.get("email")}')
+                return Response(
+                    {"email": "Пользователь с таким email уже существует"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                logger.exception("Неизвестная ошибка IntegrityError при регистрации")
+                return Response(
+                    {"error": "Ошибка при регистрации"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+        except Exception as e:
+            logger.exception("Непредвиденная ошибка при регистрации")
+            return Response(
+                {"error": "Внутренняя ошибка сервера"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class CurrentUserView(APIView):
